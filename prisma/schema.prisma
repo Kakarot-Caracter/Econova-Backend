@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  address   String
+  phone     String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id               String   @id @default(uuid())
+  name             String
+  slug             String   @unique
+  description      String?   
+  price            Int
+  image            String?
+  stock            Int
+  sku String
+  category         Category
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+enum Category {
+  FASHION_ACCESSORIES     // Moda y accesorios
+  ELECTRONICS_TECH        // Electrónica y tecnología
+  HOME_GARDEN             // Hogar y jardín
+  HEALTH_BEAUTY           // Salud y belleza
+  SPORTS_OUTDOORS         // Deportes y aire libre
+  FOOD_BEVERAGES          // Alimentación y bebidas
+  BABY_TOYS               // Bebés y juguetes
+}
