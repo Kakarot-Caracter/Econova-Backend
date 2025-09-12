@@ -1,14 +1,15 @@
+// products.service.ts
 import {
-  BadRequestException,
   Injectable,
-  InternalServerErrorException,
-  Logger,
   NotFoundException,
+  BadRequestException,
+  Logger,
 } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { prismaHandlerError } from 'src/prisma/prisma.errors';
 
 @Injectable()
 export class ProductsService {
@@ -23,86 +24,84 @@ export class ProductsService {
     const { name } = createProductDto;
     const slug = name.toLowerCase().replace(/ /g, '-');
 
-    try {
-      const { secure_url } = await this.cloudinary.uploadFile(file);
+    let uploadResult;
 
-      const product = await this.prisma.product.create({
+    try {
+      uploadResult = await this.cloudinary.uploadFile(file);
+      return await this.prisma.product.create({
         data: {
           ...createProductDto,
           slug,
-          image: secure_url,
+          image: uploadResult.secure_url,
+          imageId: uploadResult.public_id,
         },
       });
-
-      return product;
     } catch (error) {
-      this.prisma.prismaHandlerError(error);
+      if (uploadResult) {
+        await this.cloudinary.deleteFile(uploadResult.public_id);
+      }
+      throw prismaHandlerError(error);
     }
   }
 
   async findAll() {
-    return await this.prisma.product.findMany();
+    return this.prisma.product.findMany();
   }
 
   async findOne(id: string) {
-    const product = await this.prisma.product.findUnique({
-      where: { id },
-    });
-
+    const product = await this.prisma.product.findUnique({ where: { id } });
     if (!product) {
       throw new NotFoundException(`Product with id ${id} not found`);
     }
-
     return product;
   }
 
   async update(
     id: string,
     updateProductDto: UpdateProductDto,
-    file: Express.Multer.File,
+    file?: Express.Multer.File,
   ) {
     const product = await this.findOne(id);
 
+    let uploadResult;
+
     if (file) {
-      // Check if product has an existing image
-      if (product.image) {
-        // Extract public ID safely
-        const publicId = product.image.split('/').pop()?.split('.')[0];
-        if (publicId) {
-          await this.cloudinary.deleteFile(publicId);
-        }
+      if (product.imageId) {
+        await this.cloudinary.deleteFile(product.imageId);
       }
+      uploadResult = await this.cloudinary.uploadFile(file);
     }
 
-    // Upload new image
-    const { secure_url } = await this.cloudinary.uploadFile(file);
+    const dataToUpdate: Partial<
+      UpdateProductDto & { image?: string; imageId?: string }
+    > = {
+      ...updateProductDto,
+    };
 
-    const dataToUpdate = { ...updateProductDto, image: secure_url };
+    if (uploadResult) {
+      dataToUpdate.image = uploadResult.secure_url;
+      dataToUpdate.imageId = uploadResult.public_id;
+    }
 
     try {
-      const updatedProduct = await this.prisma.product.update({
+      return await this.prisma.product.update({
         where: { id },
         data: dataToUpdate,
       });
-
-      return updatedProduct;
     } catch (error) {
-      this.prisma.prismaHandlerError(error);
+      if (uploadResult) {
+        await this.cloudinary.deleteFile(uploadResult.public_id);
+      }
+      throw prismaHandlerError(error);
     }
   }
 
   async remove(id: string) {
     const product = await this.findOne(id);
-
-    if (product.image) {
-      const publicId = product.image.split('/').pop()?.split('.')[0];
-      if (publicId) {
-        await this.cloudinary.deleteFile(publicId);
-      }
+    if (product.imageId) {
+      await this.cloudinary.deleteFile(product.imageId);
     }
-
     await this.prisma.product.delete({ where: { id } });
-
     return { message: `Product with id ${id} deleted` };
   }
 }

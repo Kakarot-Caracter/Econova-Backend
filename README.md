@@ -1,98 +1,239 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Econova Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend para una aplicación de comercio electrónico construida con NestJS, Prisma y PostgreSQL. Gestiona la autenticación de usuarios, el catálogo de productos y el procesamiento de pagos.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Características Principales
 
-## Description
+- **Autenticación y Autorización:**
+  - Registro de nuevos usuarios.
+  - Inicio de sesión con credenciales (email y contraseña).
+  - Cierre de sesión.
+  - Protección de rutas mediante JSON Web Tokens (JWT).
+  - Roles de usuario (ADMIN, USER) para control de acceso.
+- **Gestión de Productos:**
+  - Operaciones CRUD (Crear, Leer, Actualizar, Eliminar) para productos.
+  - Carga de imágenes de productos a Cloudinary.
+  - Acceso restringido a endpoints de creación, actualización y eliminación solo para administradores.
+- **Procesamiento de Pagos:**
+  - Endpoint para crear intentos de pago.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tecnologías Utilizadas
 
-## Project setup
+- **Framework:** [NestJS](https://nestjs.com/)
+- **ORM:** [Prisma](https://www.prisma.io/)
+- **Base de Datos:** [PostgreSQL](https://www.postgresql.org/)
+- **Autenticación:** [Passport](http://www.passportjs.org/) con estrategia JWT.
+- **Validación:** [class-validator](https://github.com/typestack/class-validator) y [class-transformer](https://github.com/typestack/class-transformer).
+- **Carga de Archivos:** Integración con [Cloudinary](https://cloudinary.com/) para el almacenamiento de imágenes.
+- **Lenguaje:** [TypeScript](https://www.typescriptlang.org/)
 
-```bash
-$ npm install
+## Estructura del Proyecto
+
+```
+/src
+├── /auth           # Lógica de autenticación y autorización
+│   ├── /decorators # Decoradores personalizados
+│   ├── /dto        # Data Transfer Objects para auth
+│   ├── /guards     # Guardianes de rutas
+│   ├── /interfaces # Interfaces y enums
+│   └── /strategies # Estrategias de Passport.js
+├── /cloudinary     # Servicio para la carga de imágenes
+├── /payments       # Lógica para el procesamiento de pagos
+├── /prisma         # Servicio y módulo de Prisma
+└── /products       # Lógica para la gestión de productos
 ```
 
-## Compile and run the project
+## Esquema de la Base de Datos
 
-```bash
-# development
-$ npm run start
+El esquema de la base de datos se define en `prisma/schema.prisma`.
 
-# watch mode
-$ npm run start:dev
+### Modelo `User`
 
-# production mode
-$ npm run start:prod
-```
+| Campo      | Tipo     | Descripción                           |
+| ---------- | -------- | ------------------------------------- |
+| `id`       | `Int`    | Identificador único (autoincremental) |
+| `name`     | `String` | Nombre del usuario.                   |
+| `email`    | `String` | Email del usuario (único).            |
+| `password` | `String` | Contraseña hasheada.                  |
+| `address`  | `String` | Dirección del usuario.                |
+| `phone`    | `String` | Teléfono del usuario.                 |
+| `role`     | `Role`   | Rol del usuario (`USER` o `ADMIN`).   |
 
-## Run tests
+### Modelo `Product`
 
-```bash
-# unit tests
-$ npm run test
+| Campo         | Tipo       | Descripción                               |
+| ------------- | ---------- | ----------------------------------------- |
+| `id`          | `String`   | Identificador único (UUID).               |
+| `name`        | `String`   | Nombre del producto.                      |
+| `slug`        | `String`   | Slug único para URL amigable.             |
+| `description` | `String?`  | Descripción del producto (opcional).      |
+| `price`       | `Int`      | Precio del producto.                      |
+| `image`       | `String?`  | URL de la imagen del producto (opcional). |
+| `stock`       | `Int`      | Cantidad de stock disponible.             |
+| `sku`         | `String`   | SKU (Stock Keeping Unit) del producto.    |
+| `category`    | `Category` | Categoría del producto.                   |
 
-# e2e tests
-$ npm run test:e2e
+## Documentación de la API
 
-# test coverage
-$ npm run test:cov
-```
+### Módulo de Autenticación (`/auth`)
 
-## Deployment
+#### `POST /auth/register`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Registra un nuevo usuario.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- **Body:** `RegisterAuthDto`
+  ```json
+  {
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "password": "password123",
+    "address": "123 Main St",
+    "phone": "555-1234"
+  }
+  ```
+- **Respuesta Exitosa (201):**
+  ```json
+  {
+    "user": {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "role": "USER"
+    },
+    "token": "jwt.token.here"
+  }
+  ```
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+#### `POST /auth/login`
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Inicia sesión para un usuario existente.
 
-## Resources
+- **Body:** `LoginAuthDto`
+  ```json
+  {
+    "email": "john.doe@example.com",
+    "password": "password123"
+  }
+  ```
+- **Respuesta Exitosa (201):** Devuelve el usuario y un token JWT, además de establecer una cookie `access_token`.
 
-Check out a few resources that may come in handy when working with NestJS:
+#### `POST /auth/logout`
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Cierra la sesión del usuario.
 
-## Support
+- **Respuesta Exitosa (201):** Limpia la cookie `access_token`.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Módulo de Productos (`/products`)
 
-## Stay in touch
+#### `POST /products`
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Crea un nuevo producto.
 
-## License
+- **Rol Requerido:** `ADMIN`
+- **Body:** `CreateProductDto` (form-data)
+  - `name`: `String`
+  - `description`: `String` (opcional)
+  - `price`: `Number`
+  - `stock`: `Number`
+  - `sku`: `String`
+  - `category`: `Enum`
+  - `file`: `File` (imagen del producto)
+- **Respuesta Exitosa (201):** El objeto del producto creado.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+#### `GET /products`
+
+Obtiene una lista de todos los productos.
+
+- **Respuesta Exitosa (200):** Un array de objetos de productos.
+
+#### `GET /products/:id`
+
+Obtiene un producto por su ID.
+
+- **Respuesta Exitosa (200):** El objeto del producto.
+
+#### `PATCH /products/:id`
+
+Actualiza un producto existente.
+
+- **Rol Requerido:** `ADMIN`
+- **Body:** `UpdateProductDto` (form-data, opcional) y/o `file` (imagen).
+- **Respuesta Exitosa (200):** El objeto del producto actualizado.
+
+#### `DELETE /products/:id`
+
+Elimina un producto.
+
+- **Rol Requerido:** `ADMIN`
+- **Respuesta Exitosa (200):** Un mensaje de confirmación.
+
+### Módulo de Pagos (`/payments`)
+
+#### `POST /payments/checkout`
+
+Crea una intención de pago.
+
+- **Body:** `CreatePaymentDto`
+  ```json
+  {
+    "amount": 2000,
+    "currency": "usd"
+  }
+  ```
+- **Respuesta Exitosa (201):** Devuelve un `client_secret` para ser usado en el frontend.
+
+## Guía de Inicio Rápido
+
+### Prerrequisitos
+
+- [Node.js](https://nodejs.org/) (v18 o superior)
+- [npm](https://www.npmjs.com/)
+- [PostgreSQL](https://www.postgresql.org/download/)
+
+### Instalación
+
+1.  **Clona el repositorio:**
+
+    ```bash
+    git clone <URL_DEL_REPOSITORIO>
+    cd econova-backend
+    ```
+
+2.  **Instala las dependencias:**
+
+    ```bash
+    npm install
+    ```
+
+3.  **Configura las variables de entorno:**
+    Crea un archivo `.env` en la raíz del proyecto y añade las siguientes variables:
+
+    ```env
+    DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+    JWT_SECRET="TU_SECRET_JWT"
+
+    CLOUDINARY_CLOUD_NAME="TU_CLOUD_NAME"
+    CLOUDINARY_API_KEY="TU_API_KEY"
+    CLOUDINARY_API_SECRET="TU_API_SECRET"
+    ```
+
+4.  **Aplica las migraciones de la base de datos:**
+
+    ```bash
+    npx prisma migrate dev
+    ```
+
+5.  **Inicia la aplicación en modo de desarrollo:**
+    ```bash
+    npm run start:dev
+    ```
+    La aplicación estará disponible en `http://localhost:3000`.
+
+## Scripts Disponibles
+
+- `npm run build`: Compila el proyecto a JavaScript.
+- `npm run format`: Formatea el código con Prettier.
+- `npm run start`: Inicia la aplicación en modo producción.
+- `npm run start:dev`: Inicia la aplicación en modo desarrollo con recarga automática.
+- `npm run lint`: Analiza el código con ESLint.
+- `npm test`: Ejecuta las pruebas unitarias.

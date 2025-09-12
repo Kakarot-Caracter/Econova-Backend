@@ -12,25 +12,32 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
 } from '@nestjs/common';
+import { memoryStorage } from 'multer';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from 'src/auth/decorators/auth.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @Auth()
-  @UseInterceptors(FileInterceptor('file'))
+  @Auth(ValidRoles.ADMIN)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+    }),
+  )
   create(
     @Body() createProductDto: CreateProductDto,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2 }), // 2MB
+          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
           new FileTypeValidator({
             fileType: 'image/jpeg|image/png|image/gif|image/webp',
           }),
@@ -53,15 +60,20 @@ export class ProductsController {
   }
 
   @Patch(':id')
-  @Auth()
-  @UseInterceptors(FileInterceptor('file'))
+  @Auth(ValidRoles.ADMIN)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 2 * 1024 * 1024 },
+    }),
+  )
   update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2 }), // 2MB
+          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
           new FileTypeValidator({
             fileType: 'image/jpeg|image/png|image/gif|image/webp',
           }),
@@ -69,13 +81,13 @@ export class ProductsController {
         fileIsRequired: false,
       }),
     )
-    file: Express.Multer.File,
+    file?: Express.Multer.File,
   ) {
     return this.productsService.update(id, updateProductDto, file);
   }
 
   @Delete(':id')
-  @Auth()
+  @Auth(ValidRoles.ADMIN)
   remove(@Param('id') id: string) {
     return this.productsService.remove(id);
   }

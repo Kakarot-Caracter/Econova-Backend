@@ -10,6 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { RegisterAuthDto } from './dto/register-auth-dto';
 import { JwtService } from '@nestjs/jwt';
+import { prismaHandlerError } from 'src/prisma/prisma.errors';
 
 @Injectable()
 export class AuthService {
@@ -39,7 +40,7 @@ export class AuthService {
         message: 'User registered successfully',
       };
     } catch (error: unknown) {
-      await this.prisma.prismaHandlerError(error);
+      throw prismaHandlerError(error);
     }
   }
 
