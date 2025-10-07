@@ -10,8 +10,11 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { prismaHandlerError } from 'src/prisma/prisma.errors';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles';
 
 @Injectable()
+@Auth(ValidRoles.ADMIN)
 export class ProductsService {
   private readonly logger = new Logger('ProductsService');
 
@@ -98,10 +101,19 @@ export class ProductsService {
 
   async remove(id: string) {
     const product = await this.findOne(id);
+
     if (product.imageId) {
       await this.cloudinary.deleteFile(product.imageId);
     }
+
+    // 👇 eliminar dependencias antes
+
+    await this.prisma.orderItem.deleteMany({
+      where: { productId: id },
+    });
+
     await this.prisma.product.delete({ where: { id } });
+
     return { message: `Product with id ${id} deleted` };
   }
 }

@@ -25,7 +25,6 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @Auth(ValidRoles.ADMIN)
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),

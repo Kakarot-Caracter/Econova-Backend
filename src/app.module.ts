@@ -4,6 +4,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ProductsModule } from './products/products.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PaymentsModule } from './payments/payments.module';
+import { UserModule } from './user/user.module';
+import { OrdersModule } from './orders/orders.module';
 import { Module } from '@nestjs/common';
 
 @Module({
@@ -14,6 +16,8 @@ import { Module } from '@nestjs/common';
     ProductsModule,
     CloudinaryModule,
     PaymentsModule,
+    UserModule,
+    OrdersModule,
   ],
   controllers: [],
   providers: [],

@@ -1,28 +1,49 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { ValidCurrency } from './interfaces/currency.interface';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { OrdersService } from '../orders/orders.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class PaymentsService {
-  private readonly CURRENCY_MIN_AMOUNTS: Record<ValidCurrency, number> = {
-    PYG: 10000,
-    MXN: 200,
-  };
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-  createPaymentIntent(
-    amount: number,
-    currency: ValidCurrency = ValidCurrency.PYG,
+  async checkout(
+    userId: number,
+    items: { productId: string; quantity: number }[],
   ) {
-    if (!this.CURRENCY_MIN_AMOUNTS.hasOwnProperty(currency)) {
-      throw new BadRequestException(`Unsupported currency: ${currency}`);
+    // 1. Calcular el total con los precios actuales
+    const productIds = items.map((i) => i.productId);
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: productIds } },
+    });
+
+    if (products.length !== productIds.length) {
+      throw new BadRequestException('Uno o más productos no existen');
     }
 
-    const minimumAmount = this.CURRENCY_MIN_AMOUNTS[currency];
+    const total = items.reduce((sum, item) => {
+      const product = products.find((p) => p.id === item.productId)!;
+      return sum + product.price * item.quantity;
+    }, 0);
 
-    if (amount < minimumAmount) {
-      throw new BadRequestException(
-        `Minimum payment is ${minimumAmount} ${currency}`,
-      );
+    // 2. Simulación de pago exitoso
+    // Aquí iría la integración con Stripe, PayPal, MercadoPago, etc.
+    const paymentApproved = true; // <- cambiar por el real
+    if (!paymentApproved) {
+      throw new BadRequestException('El pago fue rechazado');
     }
-    return 'Your Paid ' + amount + ' ' + currency;
+
+    // 3. Crear la orden automáticamente
+    const order = await this.ordersService.createOrder({
+      userId,
+      items,
+    });
+
+    return {
+      message: 'Pago aprobado y orden creada',
+      order,
+    };
   }
 }
