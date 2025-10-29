@@ -1,239 +1,155 @@
-# Econova Backend
+<div align="center">
+  <br />
+  <h1>Econova API</h1>
+  <p>
+    Backend para una plataforma de e-commerce, construido con NestJS, Prisma y SQLite.
+  </p>
+</div>
 
-Backend para una aplicación de comercio electrónico construida con NestJS, Prisma y PostgreSQL. Gestiona la autenticación de usuarios, el catálogo de productos y el procesamiento de pagos.
+<p align="center">
+  <img alt="NestJS" src="https://img.shields.io/badge/NestJS-11.x-red?style=for-the-badge&logo=nestjs"/>
+  <img alt="Prisma" src="https://img.shields.io/badge/Prisma-6.x-blue?style=for-the-badge&logo=prisma"/>
+  <img alt="SQLite" src="https://img.shields.io/badge/SQLite-blue?style=for-the-badge&logo=sqlite&logoColor=white"/>
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript"/>
+  <img alt="Stripe" src="https://img.shields.io/badge/Stripe-purple?style=for-the-badge&logo=stripe"/>
+</p>
 
-## Características Principales
+---
 
-- **Autenticación y Autorización:**
-  - Registro de nuevos usuarios.
-  - Inicio de sesión con credenciales (email y contraseña).
-  - Cierre de sesión.
-  - Protección de rutas mediante JSON Web Tokens (JWT).
-  - Roles de usuario (ADMIN, USER) para control de acceso.
-- **Gestión de Productos:**
-  - Operaciones CRUD (Crear, Leer, Actualizar, Eliminar) para productos.
-  - Carga de imágenes de productos a Cloudinary.
-  - Acceso restringido a endpoints de creación, actualización y eliminación solo para administradores.
-- **Procesamiento de Pagos:**
-  - Endpoint para crear intentos de pago.
+## ✨ Características
 
-## Tecnologías Utilizadas
+- **Autenticación JWT**: Sistema seguro basado en cookies `HttpOnly`.
+- **Gestión de Usuarios**: Registro, login, logout y gestión de perfiles con roles (Admin/User).
+- **Gestión de Productos (CRUD)**: Administración completa de productos, incluyendo subida de imágenes a Cloudinary.
+- **Gestión de Órdenes**: Creación y consulta de órdenes por usuario.
+- **Procesamiento de Pagos**: Integración con Stripe para procesar pagos de manera segura.
+- **Base de Datos Tipada**: Conexión segura y tipada a SQLite usando Prisma ORM.
+- **Documentación Automática**: Endpoints documentados con Swagger (OpenAPI).
+- **Validación de Datos**: DTOs con `class-validator` para asegurar la integridad de los datos.
 
-- **Framework:** [NestJS](https://nestjs.com/)
-- **ORM:** [Prisma](https://www.prisma.io/)
-- **Base de Datos:** [PostgreSQL](https://www.postgresql.org/)
-- **Autenticación:** [Passport](http://www.passportjs.org/) con estrategia JWT.
-- **Validación:** [class-validator](https://github.com/typestack/class-validator) y [class-transformer](https://github.com/typestack/class-transformer).
-- **Carga de Archivos:** Integración con [Cloudinary](https://cloudinary.com/) para el almacenamiento de imágenes.
-- **Lenguaje:** [TypeScript](https://www.typescriptlang.org/)
+---
 
-## Estructura del Proyecto
+## ⚙️ Stack de Tecnologías
 
+- **Framework**: [NestJS](https://nestjs.com/)
+- **ORM**: [Prisma](https://www.prisma.io/)
+- **Base de Datos**: [SQLite](https://www.sqlite.org/index.html)
+- **Lenguaje**: [TypeScript](https://www.typescriptlang.org/)
+- **Autenticación**: [Passport.js](http://www.passportjs.org/) (JWT Strategy)
+- **Pagos**: [Stripe](https://stripe.com)
+- **Almacenamiento de Archivos**: [Cloudinary](https://cloudinary.com)
+- **Documentación**: [Swagger](https://swagger.io/)
+
+---
+
+## 🚀 Cómo Empezar
+
+Sigue estos pasos para tener una copia del proyecto funcionando localmente.
+
+### Requisitos Previos
+
+- [Node.js](https://nodejs.org/) (v18+ recomendado)
+
+### 1. Clona el Repositorio
+
+```bash
+git clone https://github.com/tu-usuario/econova-backend.git
+cd econova-backend
 ```
-/src
-├── /auth           # Lógica de autenticación y autorización
-│   ├── /decorators # Decoradores personalizados
-│   ├── /dto        # Data Transfer Objects para auth
-│   ├── /guards     # Guardianes de rutas
-│   ├── /interfaces # Interfaces y enums
-│   └── /strategies # Estrategias de Passport.js
-├── /cloudinary     # Servicio para la carga de imágenes
-├── /payments       # Lógica para el procesamiento de pagos
-├── /prisma         # Servicio y módulo de Prisma
-└── /products       # Lógica para la gestión de productos
+
+### 2. Configura las Variables de Entorno
+
+Crea un archivo `.env` en la raíz del proyecto y añade las siguientes variables. Puedes usar el siguiente template:
+
+```env
+# Aplicación
+PORT=3001
+JWT_SECRET=tu_super_secreto_jwt
+FRONTEND_URL=http://localhost:3000
+
+# Base de Datos (SQLite)
+DATABASE_URL="file:./prisma/dev.db"
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
 ```
 
-## Esquema de la Base de Datos
+### 3. Instala Dependencias y Ejecuta las Migraciones
 
-El esquema de la base de datos se define en `prisma/schema.prisma`.
+```bash
+# Instala los paquetes de Node.js
+npm install
 
-### Modelo `User`
+# Genera el cliente de Prisma
+npx prisma generate
 
-| Campo      | Tipo     | Descripción                           |
-| ---------- | -------- | ------------------------------------- |
-| `id`       | `Int`    | Identificador único (autoincremental) |
-| `name`     | `String` | Nombre del usuario.                   |
-| `email`    | `String` | Email del usuario (único).            |
-| `password` | `String` | Contraseña hasheada.                  |
-| `address`  | `String` | Dirección del usuario.                |
-| `phone`    | `String` | Teléfono del usuario.                 |
-| `role`     | `Role`   | Rol del usuario (`USER` o `ADMIN`).   |
+# Aplica las migraciones para crear la base de datos SQLite
+npx prisma migrate dev
+```
 
-### Modelo `Product`
+### 4. ¡Inicia la Aplicación!
 
-| Campo         | Tipo       | Descripción                               |
-| ------------- | ---------- | ----------------------------------------- |
-| `id`          | `String`   | Identificador único (UUID).               |
-| `name`        | `String`   | Nombre del producto.                      |
-| `slug`        | `String`   | Slug único para URL amigable.             |
-| `description` | `String?`  | Descripción del producto (opcional).      |
-| `price`       | `Int`      | Precio del producto.                      |
-| `image`       | `String?`  | URL de la imagen del producto (opcional). |
-| `stock`       | `Int`      | Cantidad de stock disponible.             |
-| `sku`         | `String`   | SKU (Stock Keeping Unit) del producto.    |
-| `category`    | `Category` | Categoría del producto.                   |
+```bash
+# Inicia el servidor en modo de desarrollo (con hot-reload)
+npm run start:dev
+```
 
-## Documentación de la API
+¡Listo! La API estará disponible en `http://localhost:3001/api/v1` y la documentación de Swagger en `http://localhost:3001/docs`.
 
-### Módulo de Autenticación (`/auth`)
+---
 
-#### `POST /auth/register`
+## 🔌 Uso de la API
 
-Registra un nuevo usuario.
+- **URL Base**: `http://localhost:3001/api/v1`
+- **Documentación Interactiva**: `http://localhost:3001/docs`
 
-- **Body:** `RegisterAuthDto`
-  ```json
-  {
-    "name": "John Doe",
-    "email": "john.doe@example.com",
-    "password": "password123",
-    "address": "123 Main St",
-    "phone": "555-1234"
-  }
-  ```
-- **Respuesta Exitosa (201):**
-  ```json
-  {
-    "user": {
-      "id": 1,
-      "name": "John Doe",
-      "email": "john.doe@example.com",
-      "role": "USER"
-    },
-    "token": "jwt.token.here"
-  }
-  ```
+### Autenticación
 
-#### `POST /auth/login`
+La autenticación se maneja a través de una cookie `HttpOnly`. El endpoint de `login` la establece automáticamente y el de `logout` la elimina. Las peticiones a endpoints protegidos deben incluir esta cookie.
 
-Inicia sesión para un usuario existente.
+### Resumen de Endpoints
 
-- **Body:** `LoginAuthDto`
-  ```json
-  {
-    "email": "john.doe@example.com",
-    "password": "password123"
-  }
-  ```
-- **Respuesta Exitosa (201):** Devuelve el usuario y un token JWT, además de establecer una cookie `access_token`.
+| Método | Ruta | Descripción | Requiere Auth | Rol | 
+| :--- | :--- | :--- | :---: | :---: |
+| `POST` | `/auth/register` | Registra un nuevo usuario. | ❌ | | 
+| `POST` | `/auth/login` | Inicia sesión y obtiene la cookie de auth. | ❌ | | 
+| `POST` | `/auth/logout` | Cierra la sesión del usuario. | ❌ | | 
+| `GET` | `/users` | Obtiene los datos del usuario actual. | ✅ | User | 
+| `GET` | `/users/all` | Obtiene todos los usuarios. | ✅ | Admin | 
+| `PATCH` | `/users` | Actualiza los datos del usuario actual. | ✅ | User | 
+| `DELETE`| `/users/:id` | Elimina la cuenta del usuario actual. | ✅ | User | 
+| `GET` | `/products` | Lista todos los productos. | ❌ | | 
+| `GET` | `/products/:id` | Obtiene un producto por su ID. | ❌ | | 
+| `POST` | `/products` | Crea un nuevo producto (incluye imagen). | ✅ | Admin | 
+| `PATCH` | `/products/:id` | Actualiza un producto (incluye imagen). | ✅ | Admin | 
+| `DELETE`| `/products/:id` | Elimina un producto. | ✅ | Admin | 
+| `GET` | `/orders` | Lista las órdenes del usuario actual. | ✅ | User | 
+| `GET` | `/orders/all` | Lista todas las órdenes del sistema. | ✅ | Admin | 
+| `POST` | `/payments/checkout` | Crea una sesión de pago con Stripe. | ✅ | User | 
 
-#### `POST /auth/logout`
+---
 
-Cierra la sesión del usuario.
+## 🛠️ Scripts Útiles
 
-- **Respuesta Exitosa (201):** Limpia la cookie `access_token`.
+| Script | Descripción |
+| :--- | :--- |
+| `npm run start:dev` | Inicia la app en modo desarrollo con `watch`. |
+| `npm run build` | Compila el proyecto para producción. |
+| `npm run start:prod` | Inicia la app en modo producción (requiere `build`). |
+| `npm run lint` | Analiza el código con ESLint y corrige errores. |
+| `npm run format` | Formatea el código con Prettier. |
+| `npm run test` | Ejecuta las pruebas unitarias. |
+| `npm run test:e2e` | Ejecuta las pruebas end-to-end. |
+| `npx prisma generate` | Genera el cliente de Prisma según tu `schema.prisma`. |
+| `npx prisma migrate dev`| Crea y aplica nuevas migraciones de Prisma en desarrollo. |
 
-### Módulo de Productos (`/products`)
+---
 
-#### `POST /products`
+## 📄 Licencia
 
-Crea un nuevo producto.
-
-- **Rol Requerido:** `ADMIN`
-- **Body:** `CreateProductDto` (form-data)
-  - `name`: `String`
-  - `description`: `String` (opcional)
-  - `price`: `Number`
-  - `stock`: `Number`
-  - `sku`: `String`
-  - `category`: `Enum`
-  - `file`: `File` (imagen del producto)
-- **Respuesta Exitosa (201):** El objeto del producto creado.
-
-#### `GET /products`
-
-Obtiene una lista de todos los productos.
-
-- **Respuesta Exitosa (200):** Un array de objetos de productos.
-
-#### `GET /products/:id`
-
-Obtiene un producto por su ID.
-
-- **Respuesta Exitosa (200):** El objeto del producto.
-
-#### `PATCH /products/:id`
-
-Actualiza un producto existente.
-
-- **Rol Requerido:** `ADMIN`
-- **Body:** `UpdateProductDto` (form-data, opcional) y/o `file` (imagen).
-- **Respuesta Exitosa (200):** El objeto del producto actualizado.
-
-#### `DELETE /products/:id`
-
-Elimina un producto.
-
-- **Rol Requerido:** `ADMIN`
-- **Respuesta Exitosa (200):** Un mensaje de confirmación.
-
-### Módulo de Pagos (`/payments`)
-
-#### `POST /payments/checkout`
-
-Crea una intención de pago.
-
-- **Body:** `CreatePaymentDto`
-  ```json
-  {
-    "amount": 2000,
-    "currency": "usd"
-  }
-  ```
-- **Respuesta Exitosa (201):** Devuelve un `client_secret` para ser usado en el frontend.
-
-## Guía de Inicio Rápido
-
-### Prerrequisitos
-
-- [Node.js](https://nodejs.org/) (v18 o superior)
-- [npm](https://www.npmjs.com/)
-- [PostgreSQL](https://www.postgresql.org/download/)
-
-### Instalación
-
-1.  **Clona el repositorio:**
-
-    ```bash
-    git clone <URL_DEL_REPOSITORIO>
-    cd econova-backend
-    ```
-
-2.  **Instala las dependencias:**
-
-    ```bash
-    npm install
-    ```
-
-3.  **Configura las variables de entorno:**
-    Crea un archivo `.env` en la raíz del proyecto y añade las siguientes variables:
-
-    ```env
-    DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
-    JWT_SECRET="TU_SECRET_JWT"
-
-    CLOUDINARY_CLOUD_NAME="TU_CLOUD_NAME"
-    CLOUDINARY_API_KEY="TU_API_KEY"
-    CLOUDINARY_API_SECRET="TU_API_SECRET"
-    ```
-
-4.  **Aplica las migraciones de la base de datos:**
-
-    ```bash
-    npx prisma migrate dev
-    ```
-
-5.  **Inicia la aplicación en modo de desarrollo:**
-    ```bash
-    npm run start:dev
-    ```
-    La aplicación estará disponible en `http://localhost:3000`.
-
-## Scripts Disponibles
-
-- `npm run build`: Compila el proyecto a JavaScript.
-- `npm run format`: Formatea el código con Prettier.
-- `npm run start`: Inicia la aplicación en modo producción.
-- `npm run start:dev`: Inicia la aplicación en modo desarrollo con recarga automática.
-- `npm run lint`: Analiza el código con ESLint.
-- `npm test`: Ejecuta las pruebas unitarias.
+Este proyecto es de código privado y no tiene una licencia pública. (Actualmente `UNLICENSED`).
