@@ -1,12 +1,14 @@
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
-import { PrismaModule } from './prisma/prisma.module';
-import { ProductsModule } from './products/products.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { PaymentsModule } from './payments/payments.module';
-import { UserModule } from './user/user.module';
-import { OrdersModule } from './orders/orders.module';
+
 import { Module } from '@nestjs/common';
+import { AuthModule } from './modules/auth/auth.module';
+import { PrismaModule } from './database/prisma.module';
+import { ProductsModule } from './modules/products/products.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { UserModule } from './modules/user/user.module';
+import { OrdersModule } from './modules/orders/orders.module';
+import { WebhookController } from './modules/payments/webhooks/webhook.controller';
 
 @Module({
   imports: [
@@ -19,7 +21,7 @@ import { Module } from '@nestjs/common';
     UserModule,
     OrdersModule,
   ],
-  controllers: [],
+  controllers: [WebhookController],
   providers: [],
 })
 export class AppModule {}

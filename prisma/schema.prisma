@@ -8,7 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 enum Role {
   USER
   ADMIN
@@ -36,30 +35,31 @@ model User {
 }
 
 model Product {
-  id               String      @id @default(uuid())
-  name             String
-  slug             String      @unique
-  description      String?
-  price            Int
-  image            String?
-  imageId          String?
-  stock            Int
-  sku              String
-  category         Category
-  orderItems       OrderItem[]
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  id          String      @id @default(uuid())
+  name        String
+  slug        String      @unique
+  description String?
+  price       Int
+  image       String?
+  imageId     String?
+  stock       Int
+  sku         String
+  category    Category
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Order {
-  id        String      @id @default(uuid())
-  userId    Int
-  user      User        @relation(fields: [userId], references: [id])
-  total     Int
-  status    OrderStatus @default(PENDING)
-  items     OrderItem[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id              String      @id @default(uuid())
+  userId          Int
+  user            User        @relation(fields: [userId], references: [id])
+  stripeSessionId String?     @unique
+  total           Int
+  status          OrderStatus @default(PENDING)
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 model OrderItem {
@@ -74,11 +74,11 @@ model OrderItem {
 }
 
 enum Category {
-  FASHION_ACCESSORIES     // Moda y accesorios
-  ELECTRONICS_TECH        // Electrónica y tecnología
-  HOME_GARDEN             // Hogar y jardín
-  HEALTH_BEAUTY           // Salud y belleza
-  SPORTS_OUTDOORS         // Deportes y aire libre
-  FOOD_BEVERAGES          // Alimentación y bebidas
-  BABY_TOYS               // Bebés y juguetes
+  FASHION_ACCESSORIES // Moda y accesorios
+  ELECTRONICS_TECH // Electrónica y tecnología
+  HOME_GARDEN // Hogar y jardín
+  HEALTH_BEAUTY // Salud y belleza
+  SPORTS_OUTDOORS // Deportes y aire libre
+  FOOD_BEVERAGES // Alimentación y bebidas
+  BABY_TOYS // Bebés y juguetes
 }

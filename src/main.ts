@@ -1,16 +1,32 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+
+import * as express from 'express';
+
 import * as cookieParser from 'cookie-parser';
+import { PrismaClientExceptionFilter } from './common/filters/prisma-exception.filter';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.setGlobalPrefix('api/v1/');
+
+  app.useGlobalFilters(new PrismaClientExceptionFilter());
+
   app.use(cookieParser());
 
+  app.use(
+    '/api/v1/payments/webhook',
+    express.raw({ type: 'application/json' }),
+  );
+
   app.enableCors({
-    origin: 'http://localhost:3000', // frontend
-    credentials: true, // necesario si usás cookies / sessions
+    origin: 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   app.useGlobalPipes(
@@ -18,14 +34,20 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
 
-  const port = Number(process.env.PORT ?? 3000);
-  if (isNaN(port)) {
-    throw new Error('PORT must be a valid number');
-  }
+  const config = new DocumentBuilder()
+    .setTitle('Workouthub Documentacion.')
+    .setDescription('Workouthub es una api para gestionar entrenamientos.')
+    .setVersion('1.0')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, documentFactory);
 
-  await app.listen(port);
+  await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();
