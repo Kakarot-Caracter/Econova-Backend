@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 
 import { User } from 'generated/prisma';
@@ -15,5 +15,10 @@ export class PaymentsController {
   @Auth(ValidRoles.USER, ValidRoles.ADMIN)
   checkout(@Body() dto: CheckoutDto, @GetUser() user: User) {
     return this.paymentsService.checkout(user.id, dto);
+  }
+
+  @Get('verify')
+  async verifyPayment(@Query('session_id') sessionId: string) {
+    return this.paymentsService.verifyPayment(sessionId);
   }
 }

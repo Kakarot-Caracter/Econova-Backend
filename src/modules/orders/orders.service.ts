@@ -133,4 +133,41 @@ export class OrdersService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  async updateOrderStatus(orderId: string, status: OrderStatus) {
+    // Ajusta where según el tipo de campo id en Prisma
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Orden con id ${orderId} no encontrada`);
+    }
+
+    return await this.prisma.order.update({
+      where: { id: orderId },
+      data: { status },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: { id: true, name: true, price: true, image: true },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async deleteOrder(orderId: string) {
+    const deleted = await this.prisma.order.delete({
+      where: { id: orderId },
+    });
+
+    if (!deleted) {
+      throw new NotFoundException(`Orden con id ${orderId} no encontrada`);
+    }
+
+    return deleted;
+  }
 }

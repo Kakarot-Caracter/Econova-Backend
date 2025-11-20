@@ -49,15 +49,23 @@ export class PaymentsService {
 
     const payment = await this.paymentMethod.createPayment({
       items: orderItems,
-      successUrl: 'http://localhost:3000/success',
-      cancelUrl: 'http://localhost:3000/cancel',
+      successUrl: `${process.env.NEXT_PUBLIC_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${process.env.NEXT_PUBLIC_URL}/checkout/cancel`,
       userId: userId,
     });
 
-    console.log(payment);
-    //Crea la orden
-    //await this.ordersService.createOrder(userId, orderItems, total);
-
     return { url: payment.url };
+  }
+
+  async verifyPayment(sessionId: string) {
+    if (!sessionId) throw new BadRequestException('Session ID requerido');
+
+    if (!this.paymentMethod.verifyPayment) {
+      throw new BadRequestException(
+        'El método de pago no soporta verificación',
+      );
+    }
+
+    return this.paymentMethod.verifyPayment(sessionId);
   }
 }

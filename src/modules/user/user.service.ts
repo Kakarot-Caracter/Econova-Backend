@@ -40,6 +40,9 @@ export class UserService {
         name: true,
         createdAt: true,
         updatedAt: true,
+        address: true,
+        phone: true,
+        role: true,
       },
     });
 
@@ -55,6 +58,9 @@ export class UserService {
         name: true,
         createdAt: true,
         updatedAt: true,
+        address: true,
+        orders: true,
+        role: true,
       },
     });
 

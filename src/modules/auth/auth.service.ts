@@ -32,7 +32,7 @@ export class AuthService {
 
     this.setCookie(res, token);
 
-    return { id: user.id, email: user.email, name: user.name };
+    return { success: true, message: 'Usuario registrado correctamente.' };
   }
 
   async login(loginAuthDto: LoginAuthDto, res: Response) {
@@ -48,7 +48,10 @@ export class AuthService {
     const token = this.signToken({ id: user.id });
     this.setCookie(res, token);
 
-    return { id: user.id, email: user.email, name: user.name };
+    return {
+      success: true,
+      message: 'Usuario logueado correctamente.',
+    };
   }
 
   logout(res: Response): void {

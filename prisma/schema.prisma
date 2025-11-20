@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -53,7 +53,7 @@ model Product {
 model Order {
   id              String      @id @default(uuid())
   userId          Int
-  user            User        @relation(fields: [userId], references: [id])
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   stripeSessionId String?     @unique
   total           Int
   status          OrderStatus @default(PENDING)

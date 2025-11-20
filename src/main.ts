@@ -13,14 +13,14 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1/');
 
-  app.useGlobalFilters(new PrismaClientExceptionFilter());
-
-  app.use(cookieParser());
-
   app.use(
     '/api/v1/payments/webhook',
     express.raw({ type: 'application/json' }),
   );
+
+  app.useGlobalFilters(new PrismaClientExceptionFilter());
+
+  app.use(cookieParser());
 
   app.enableCors({
     origin: 'http://localhost:3000',

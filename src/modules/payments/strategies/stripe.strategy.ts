@@ -45,4 +45,8 @@ export class StripeStrategy implements IPaymentMethod {
 
     return { url: session.url, sessionId: session.id };
   }
+  async verifyPayment(sessionId: string) {
+    const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+    return { paid: session.payment_status === 'paid' };
+  }
 }

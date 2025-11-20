@@ -32,10 +32,9 @@ export class WebhookController {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-      const id = session.id;
 
       const existing = await this.prisma.order.findUnique({
-        where: { stripeSessionId: id },
+        where: { stripeSessionId: session.id },
       });
       if (existing) return res.send({ received: true });
 
@@ -47,7 +46,7 @@ export class WebhookController {
       }[];
       const total = session.amount_total ?? 0;
 
-      await this.ordersService.createOrder(userId, items, total, id);
+      await this.ordersService.createOrder(userId, items, total, session.id);
     }
 
     return res.send({ received: true });

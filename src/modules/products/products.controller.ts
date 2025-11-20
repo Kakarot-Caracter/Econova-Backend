@@ -46,7 +46,7 @@ export class ProductsController {
     return this.productsService.create(createProductDto, file);
   }
 
-  @Get()
+  @Get('all')
   findAll() {
     return this.productsService.findAll();
   }

@@ -1,0 +1,38 @@
+services:
+  econova-db:
+    image: postgres:18
+    container_name: econova-db
+    restart: always
+    environment:
+      POSTGRES_USER: econova
+      POSTGRES_PASSWORD: econova
+      POSTGRES_DB: econova
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql # <-- importante para Postgres 18+
+    networks:
+      - econova-network
+
+  econova-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host # eliminar si no lo necesitas; no es común en compose
+    container_name: econova-api
+    restart: always
+    depends_on:
+      - econova-db
+    ports:
+      - '3001:3001'
+    env_file:
+      - .env
+    networks:
+      - econova-network
+
+volumes:
+  postgres_data:
+
+networks:
+  econova-network:
+    driver: bridge

@@ -12,4 +12,5 @@ export interface IPaymentMethod {
     url?: string | null; // para Checkout Sessions
     sessionId?: string | null; // 👈 NUEVO: necesario para Stripe Checkout + webhooks
   }>;
+  verifyPayment?(sessionId: string): Promise<{ paid: boolean }>;
 }
